@@ -42,42 +42,32 @@ void tarefa_botoes(void *pvParameter) {
         curB = gpio_get_level(BOTAO_B);
 
         int64_t now = esp_timer_get_time() / 1000;
-
+        
         if (prevA == 1 && curA == 0) {
             if (now - lastA > DEBOUNCE_TIME_MS) {
                 incrementar_por(1);
                 lastA = now;
             }
         }
-
         if (prevB == 1 && curB == 0) {
             if (now - lastB > DEBOUNCE_TIME_MS) {
                 incrementar_por(2);
                 lastB = now;
             }
         }
-
         prevA = curA;
         prevB = curB;
-
         vTaskDelay(pdMS_TO_TICKS(10));
     }
 }
 
 void app_main(void) {
-    // Configura LEDs
     gpio_reset_pin(LED0); gpio_set_direction(LED0, GPIO_MODE_OUTPUT);
     gpio_reset_pin(LED1); gpio_set_direction(LED1, GPIO_MODE_OUTPUT);
     gpio_reset_pin(LED2); gpio_set_direction(LED2, GPIO_MODE_OUTPUT);
     gpio_reset_pin(LED3); gpio_set_direction(LED3, GPIO_MODE_OUTPUT);
-
-    // Configura botões como input com pull-up (assumindo que botões conectam ao GND)
     gpio_reset_pin(BOTAO_A); gpio_set_direction(BOTAO_A, GPIO_MODE_INPUT); gpio_pullup_en(BOTAO_A);
     gpio_reset_pin(BOTAO_B); gpio_set_direction(BOTAO_B, GPIO_MODE_INPUT); gpio_pullup_en(BOTAO_B);
-
-    // Inicializa LEDs
     atualizar_leds(contador);
-
-    // Cria tarefa de leitura dos botões
     xTaskCreate(&tarefa_botoes, "tarefa_botoes", 2048, NULL, 5, NULL);
 }
